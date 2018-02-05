@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>UpdateMyGear.com Checkout</title>
+
+  <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113051118-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-113051118-1');
+</script>
+
+
+
+</head>
+
+<style>
+  #checkoutError {
+      width: 100%;
+      padding: 50px 0;
+      text-align: center;
+      background-color: red;
+      margin-top: 20px;
+      display:none;
+  }
+  </style>
+
+<body>
+
+  <h1>UpdateMyGear.com Checkout</h1>
+
+<br/>
+Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinchen"><br>
+
+<br/>
+
+
+<div class="shopping-cart">
+
+  <div class="column-labels">
+    <label class="product-image">Image</label>
+    <label class="product-details">Product</label>
+    <label class="product-price">Price</label>
+    <label class="product-quantity">Quantity</label>
+    <label class="product-removal">Remove</label>
+    <label class="product-line-price">Total</label>
+  </div>
+
+  <div class="product">
+    <div class="product-image">
+      <img src="https://www.att.com/catalog/en/skus/images/apple-iphone%20x-space%20gray-450x350.png">
+    </div>
+    <div class="product-details">
+      <div class="product-title">iPhone X</div>
+      <p class="product-description">Our vision has always been to create an iPhone that is entirely screen. One so immersive the device itself disappears into the experience. And so intelligent it can respond to a tap, your voice, and even a glance. With iPhone X, that vision is now a reality. Say hello to the future.</p>
+    </div>
+    <div class="product-price">800.00</div>
+    <div class="product-quantity">
+      <input type="number" value="2" min="1">
+    </div>
+    <div class="product-removal">
+      <button class="remove-product">
+        Remove
+      </button>
+    </div>
+    <div class="product-line-price">1600.00</div>
+  </div>
+
+  <div class="product">
+    <div class="product-image">
+      <img src="https://store.storeimages.cdn-apple.com/4662/as-images.apple.com/is/image/AppleInc/aos/published/images/M/ME/MMEF2/MMEF2?wid=572&hei=572&fmt=jpeg&qlt=95&op_sharpen=0&resMode=bicub&op_usm=0.5,0.5,0,0&iccEmbed=0&layer=comp&.v=1503962928226">
+    </div>
+    <div class="product-details">
+      <div class="product-title">Apple AirPods</div>
+      <p class="product-description">AirPods will forever change the way you use headphones. Whenever you pull your AirPods out of the charging case, they instantly turn on and connect to your iPhone, Apple Watch, iPad or Mac.(1) Audio automatically plays as soon as you put them in your ears and pauses when you take them out.</p>
+    </div>
+    <div class="product-price">129.00</div>
+    <div class="product-quantity">
+      <input type="number" value="1" min="1">
+    </div>
+    <div class="product-removal">
+      <button class="remove-product">
+        Remove
+      </button>
+    </div>
+    <div class="product-line-price">129.00</div>
+  </div>
+
+  <div class="totals">
+    <div class="totals-item">
+      <label>Subtotal</label>
+      <div class="totals-value" id="cart-subtotal">1729.00</div>
+    </div>
+    <div class="totals-item">
+      <label>VAT (5%)</label>
+      <div class="totals-value" id="cart-tax">86.45</div>
+    </div>
+    <div class="totals-item">
+      <label>Shipping</label>
+      <div class="totals-value" id="cart-shipping">15.00</div>
+    </div>
+    <div class="totals-item totals-item-total">
+      <label>Grand Total</label>
+      <div class="totals-value" id="cart-total">1830.45</div>
+    </div>
+  </div>
+      
+      <button id="checkoutButton" class="checkout" onclick="completeCheckout()">Checkout</button>
+  </div>
+
+
+<div id="checkoutError">
+  <b>Error in Checkout</b> 
+  <br/>"Connection to data source updateOrderDB can not be established! 
+  <br/>Reason: Invalid operation. The connection is closed. - complete stack
+  <br/>at System.Data.SqlClient.SqlConnection.GetOpenConnection()
+  <br/>at System.Data.SqlClient.SqlConnection.get_Parser()
+  <br/>at System.Data.SqlClient.SqlConnection.Open()", Please try later
+</div>
+
+<script>
+
+  function guid() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+      s4() + '-' + s4() + s4() + s4();
+  }
+
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  function updateResponsePanel()
+  {
+    var x = document.getElementById("checkoutError");
+    x.style.display = "block";
+
+    document.getElementById("checkoutButton").innerHTML = "Checkout";
+
+  }
+
+  function completeCheckout() {
+
+    var x = document.getElementById("checkoutError");
+    x.style.display = "none";
+
+    document.getElementById("checkoutButton").innerHTML = "Working";
+
+    setTimeout(updateResponsePanel, 4000);
+
+    var serviceKey = getParameterByName('service_key');
+    if (!serviceKey) 
+    {
+      alert('Please get a service key from your PagerDuty instance - Select the Business Service > Integrations and generate a V2 API key');
+      return;
+      //serviceKey = "fffffffffffff";
+    }
+    var node = document.getElementById('cart-total'),
+    orderValue = node.innerHTML
+
+    node = document.getElementById('customer-name'),
+    customerName = node.value
+
+    //Deprecated guid()
+    var date = new Date("1/1/2001");  
+    dedupKey = customerName + date.getMinutes()
+
+    //alert (customerName);
+
+    // Requires jQuery
+    var eventObject = '{ ' + 
+        ' "client_url": "https://rpm.newrelic.com/accounts/1218847/incidents/17615637", ' +
+        ' "service_key"\: "' + serviceKey + '", ' +
+        ' "incident_key"\: "' + dedupKey + '", ' +
+        ' "client"\: "NewRelic", ' +
+        ' "vendor"\: "NewRelic", ' +
+        ' "event_type"\: "trigger", ' +
+        ' "contexts"\: [ ' +
+        ' {  ' +
+            ' "src": "https://s18.postimg.org/3yl0ychi1/NRScreen.png", ' +
+            ' "alt": "Snapshot of metric", ' +
+            ' "href": "https://s18.postimg.org/3yl0ychi1/NRScreen.png", ' +
+            ' "type": "image" ' +
+        ' }, ' +
+    
+        ' { ' +   
+        ' "text": "Conference URL (Zoom)", ' +
+        ' "href": "https://pagerduty.zoom.us/j/5080555253", ' +
+        ' "type": "link" ' +
+        ' }, ' +
+    
+      '{' +
+      '  "text": "Conference Dial (Zoom)",  ' +
+      '  "href": "tel:+442036950088,,5080555253#",  ' +
+      '  "type": "link"  ' +
+      '},' +
+    '{' +
+      ' "text": "Monitor Status", ' +
+      ' "href": "https://appp.datadoghq.com/monitors#72563?to_ts=1452282540000&group=host%3Aprod-web-xdb09&from_ts=1452281340000", ' +
+      ' "type": "link" ' +
+    '},' +
+    '{ ' +
+    ' "text": "Triggered Monitors", ' +
+    '  "href": "https://rpm.newrelic.com/accounts/1218847/incidents/17615637", ' +
+    '  "type": "link" ' +
+    ' } ' +
+    ' ], ' +
+  ' "details": { ' +
+    ' "body": "[Critical] Increased response time detected on the Checkout page, High Error rates <br/> Object Reference Not Set and ADO.NET Connection pool exceeded errors detected" , ' +   
+    ' "Order Value": ' + orderValue + ', ' +
+    ' "priority": "High", ' +
+    ' "title": "[Critical] Increased response time detected on the Checkout page, High Error rates", ' +
+    ' "event_id": "8125363154448140714", ' +
+    ' "tags": "aws-prod, base, env:prod, host:farnsworth, monitor, pd_az:us-west-2c, production, xdb, xtradb", ' +
+    ' "Customer": "'+ customerName + '" ' +
+    ' }, ' +
+  ' "description": "[Critical] Increased response time detected on the Checkout page, High Error rates" ' +
+  '}' 
+
+  console.log(eventObject)
+
+
+  //    ' "Customer Name": ' + customerName + ', ' +
+
+
+    //var settings = {
+    //  "url": "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
+    //  "method": "POST",
+    //  "data":  eventObject,
+    //  "headers": {
+    //    "Accept": "application/vnd.pagerduty+json;version=2",
+    //    "Authorization": "Token token=V_uHsBDv3G2NxyimTYVg",
+    //  }
+    //};
+
+    //$.ajax(settings).done(function (response) {
+    //  console.log(response);
+    //  $("#responseText").text(JSON.stringify(response));
+    //});
+
+    //$.ajax({
+    //  type: "POST",
+    //  url: "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
+    //  data: eventObject,
+    //  success: null,
+    //  dataType: "json"
+    //});
+
+    $.ajax({
+      method: "POST",
+      url: "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
+      data: eventObject
+    })
+      .done(function( msg ) {
+        //alert( "Data Saved: " + msg );
+    });
+
+
+
+  }
+  </script>
+
+
+
+<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+  
+
+    <script  src="js/index.js"></script>
+
+
+
+</body>
+
+</html>
