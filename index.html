@@ -160,6 +160,14 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
 
   function completeCheckout() {
 
+    var serviceKey = getParameterByName('service_key');
+    if (!serviceKey) 
+    {
+      alert('CHECKOUT IS NOT OPEN YET! \n\n Please get a service key from your PagerDuty instance - Select the Business Service > Integrations and generate a V2 API key');
+      return;
+      //serviceKey = "fffffffffffff";
+    }
+
     var x = document.getElementById("checkoutError");
     x.style.display = "none";
 
@@ -167,13 +175,7 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
 
     setTimeout(updateResponsePanel, 4000);
 
-    var serviceKey = getParameterByName('service_key');
-    if (!serviceKey) 
-    {
-      alert('Please get a service key from your PagerDuty instance - Select the Business Service > Integrations and generate a V2 API key');
-      return;
-      //serviceKey = "fffffffffffff";
-    }
+
     var node = document.getElementById('cart-total'),
     orderValue = node.innerHTML
 
