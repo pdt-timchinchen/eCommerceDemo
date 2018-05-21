@@ -2,14 +2,16 @@
 <html lang="en" >
 
 <head>
-  <meta charset="UTF-8">
-  <title>UpdateMyGear.com Checkout</title>
+  <meta charset="UTF-8" http-equiv="Cache-control" content="NO-CACHE">
+
+  <title>Parts Unlimited Checkout</title>
 
   <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   
+
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113051118-1"></script>
 <script>
@@ -18,7 +20,7 @@
   gtag('js', new Date());
   gtag('config', 'UA-113051118-1');
 </script>
-
+<!-- END Global site tag (gtag.js) - Google Analytics -->
 
 
 </head>
@@ -30,16 +32,31 @@
       text-align: center;
       background-color: red;
       margin-top: 20px;
-      display:none;
+      display:none;     
   }
-  </style>
+
+  #PDContent img {
+    position: absolute;
+    top: 0px;
+    right: 15px;
+  }
+
+</style>
 
 <body>
+  <br/>
 
-  <h1>UpdateMyGear.com Checkout</h1>
+  <img  height="85" width="225" src="images/parts-unlimited-logo.jpg">
+
+  <div id="PDContent">
+    <img height="45" width="110" src="https://iqm7l1pa7bn3d42rc278rat5-wpengine.netdna-ssl.com/wp-content/uploads/2017/08/logo-pagerduty.svg"/>
+  </div>
+
+  
+  <h1>Parts Unlimited iPhone Checkout</h1>
 
 <br/>
-Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinchen"><br>
+Name &amp; email: <input type="text" name="customerName" id="customer-name" value="Enter your name here..." onfocus="if(this.value=='Enter your name here...') this.value='';"><br>
 
 <br/>
 
@@ -106,11 +123,11 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
     </div>
     <div class="totals-item">
       <label>Shipping</label>
-      <div class="totals-value" id="cart-shipping">15.00</div>
+      <div class="totals-value" id="cart-shipping">5.00</div>
     </div>
     <div class="totals-item totals-item-total">
       <label>Grand Total</label>
-      <div class="totals-value" id="cart-total">1830.45</div>
+      <div class="totals-value" id="cart-total">1820.45</div>
     </div>
   </div>
       
@@ -118,8 +135,12 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
   </div>
 
 
+<div id="PDinfo">
+  Try and drive our on-call Engineer crazy! or can you?...
+</div>
+
 <div id="checkoutError">
-  <b>Error in Checkout</b> 
+  <b>Error in Checkout - Unable to complete your order</b> 
   <br/>"Connection to data source updateOrderDB can not be established! 
   <br/>Reason: Invalid operation. The connection is closed. - complete stack
   <br/>at System.Data.SqlClient.SqlConnection.GetOpenConnection()
@@ -129,6 +150,8 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
 
 <script>
 
+  //################################################################################
+  //Function to Generate a GUID - Not used now - this was to get a unique key for Dedup'ing
   function guid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
@@ -138,7 +161,11 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
       s4() + '-' + s4() + s4() + s4();
   }
+  //################################################################################
 
+
+  //################################################################################
+  //Grab the Params from the URL in this case the Service Key
   function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -148,59 +175,81 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
+  //################################################################################
 
+  //################################################################################
+  //Clears the Checkout error back to default
   function updateResponsePanel()
   {
     var x = document.getElementById("checkoutError");
     x.style.display = "block";
 
+    var y = document.getElementById("PDinfo");
+    y.style.display = "none";
+
     document.getElementById("checkoutButton").innerHTML = "Checkout";
 
   }
+  //################################################################################
 
+
+  //################################################################################
+  //The Main function under the button
   function completeCheckout() {
 
-    var serviceKey = getParameterByName('service_key');
-    if (!serviceKey) 
-    {
-      alert('CHECKOUT IS NOT OPEN YET! \n\n Please get a service key from your PagerDuty instance - Select the Business Service > Integrations and generate a V2 API key');
-      return;
-      //serviceKey = "fffffffffffff";
-    }
-
-    var x = document.getElementById("checkoutError");
-    x.style.display = "none";
-
-    document.getElementById("checkoutButton").innerHTML = "Working";
-
-    setTimeout(updateResponsePanel, 4000);
-
-
-    var node = document.getElementById('cart-total'),
-    orderValue = node.innerHTML
-
+    //Capture the customer name
     node = document.getElementById('customer-name'),
     customerName = node.value
 
-    //Deprecated guid()
-    var date = new Date("1/1/2001");  
+    //Check the input makes sense
+    if (customerName == "Enter your name here...") 
+    {
+      alert('Please enter your name and email to complete the order');
+      return;
+    }
+    if (customerName == "") 
+    {
+      alert('Who are you???');
+      return;
+    }
+
+    //Grab the Service key of use Tim's default one!
+    var serviceKey = getParameterByName('service_key');
+    if (!serviceKey) { alert("Please set a service key using service_key= as a parmeter in your URL"); return; };
+
+    //Clear the error pane if showing
+    var x = document.getElementById("checkoutError");
+    x.style.display = "none";
+
+    //Set the Button to something happening
+    document.getElementById("checkoutButton").innerHTML = "Working";
+    
+    //Update the panel eventually - simulating an end system response
+    setTimeout(updateResponsePanel, 4000);
+
+    //Get the Order Value and a Dedup key based on Customer Name and the Minute of the Button click 
+    //(someone clicks multiple times = caught one)
+    //They return later - we trigger a new alert 
+    var node = document.getElementById('cart-total'),
+    orderValue = node.innerHTML
+    var date = new Date();  
     dedupKey = customerName + date.getMinutes()
 
-    //alert (customerName);
 
     // Requires jQuery
+    //Build the JSON payload to send
     var eventObject = '{ ' + 
-        ' "client_url": "https://rpm.newrelic.com/accounts/1218847/incidents/17615637", ' +
+        ' "client_url": "https://rpm.newrelic.com/accounts/1818495/applications/105833762", ' +
         ' "service_key"\: "' + serviceKey + '", ' +
         ' "incident_key"\: "' + dedupKey + '", ' +
-        ' "client"\: "NewRelic", ' +
-        ' "vendor"\: "NewRelic", ' +
+        ' "client"\: "New Relic", ' +
+        ' "vendor"\: "New Relic", ' +
         ' "event_type"\: "trigger", ' +
         ' "contexts"\: [ ' +
         ' {  ' +
-            ' "src": "https://s18.postimg.org/3yl0ychi1/NRScreen.png", ' +
+            ' "src": "https://s14.postimg.cc/kkb4ebntd/NRErrors2.png", ' +
             ' "alt": "Snapshot of metric", ' +
-            ' "href": "https://s18.postimg.org/3yl0ychi1/NRScreen.png", ' +
+            ' "href": "http://www.timchinchen.co.uk/DemoImages/NRErrors1.png", ' +
             ' "type": "image" ' +
         ' }, ' +
     
@@ -221,16 +270,16 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
       ' "type": "link" ' +
     '},' +
     '{ ' +
-    ' "text": "Triggered Monitors", ' +
-    '  "href": "https://rpm.newrelic.com/accounts/1218847/incidents/17615637", ' +
+    ' "text": "New Relic - Permalink", ' +
+    '  "href": "https://rpm.newrelic.com/accounts/1818495/applications/105833762?tw%5Bend%5D=1518535392&tw%5Bstart%5D=1518528373", ' +
     '  "type": "link" ' +
     ' } ' +
     ' ], ' +
   ' "details": { ' +
-    ' "body": "[Critical] Increased response time detected on the Checkout page, High Error rates <br/> Object Reference Not Set and ADO.NET Connection pool exceeded errors detected" , ' +   
+    ' "body": "[Critical] Increased response time detected on the Checkout page affecting ' + customerName + ', High Error rates <br/> Object Reference Not Set and ADO.NET Connection pool exceeded errors detected" , ' +   
     ' "Order Value": ' + orderValue + ', ' +
     ' "priority": "High", ' +
-    ' "title": "[Critical] Increased response time detected on the Checkout page, High Error rates", ' +
+    ' "title": "[Critical] Increased response time detected on the Checkout page, High Error rates  affecting ' + customerName + '", ' +
     ' "event_id": "8125363154448140714", ' +
     ' "tags": "aws-prod, base, env:prod, host:farnsworth, monitor, pd_az:us-west-2c, production, xdb, xtradb", ' +
     ' "Customer": "'+ customerName + '" ' +
@@ -267,6 +316,7 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
     //  dataType: "json"
     //});
 
+    //Send!!!
     $.ajax({
       method: "POST",
       url: "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
@@ -276,21 +326,125 @@ Name: <input type="text" name="customerName" id="customer-name" value="Tim Chinc
         //alert( "Data Saved: " + msg );
     });
 
-
+    //Update the panel eventually - simulating an end system response
+    setTimeout(sendZabbix, 5000);
+    //Update the panel eventually - simulating an end system response
+    setTimeout(sendLowRevenueWarning, 5000);
 
   }
+
+
+
+
+ //################################################################################
+ function sendZabbix()
+  {
+    console.log('Send to Zabbix');
+
+    
+    //Grab the Service key of use Tim's default one!
+    var serviceKey = getParameterByName('service_key');
+    if (!serviceKey) serviceKey = "999845c2635841589098d7fe425b0d0d";
+
+    var eventObject = ' { ' +
+    '   "payload": {     ' +
+    '     "summary": "java.lang.OutOfMemoryError: Java heap space",   ' +
+    '     "source": "Zabbix",   ' +
+    '     "severity": "warning",   ' +
+    '     "location" : "prod",   ' +
+    '     "component": "Zabbix",   ' +
+    '     "group": "Zabbix,Production,eCommerce,Checkout-Tier",   ' +
+    '     "class": "Zabbix" },   ' +
+    '   	"routing_key": "' + serviceKey + '",   ' +
+    '   	"dedup_key": "Zabbixdedupkey",   ' +
+    '    	"event_action": "trigger",   ' +
+    '   	"client": "View in Zabbix",   ' +
+    '   	"client_url": "www.zabbix.com",   ' +
+    '   	"images": [   ' +
+    '   	    {   ' +
+    '   	      "src": "https://chart.googleapis.com/chart?chs=600x400&chd=t:6,2,9,5,2,5,7,4,8,2,1&cht=lc&chds=a&chxt=y&chm=D,0033FF,0,0,5,1",   ' +
+    '   	      "href": "https://acme.pagerduty.com",   ' +
+    '   	      "alt": "This is a sample link"  ' +
+    '   	  }  ' +
+    '   	]  ' +
+    '   }'
+
+
+    console.log(eventObject);
+
+    $.ajax({
+      method: "POST",
+      url: "https://events.pagerduty.com/v2/enqueue",
+      data: eventObject
+    })
+      .done(function( msg ) {
+        //alert( "Data Saved: " + msg );
+    });
+
+    return;
+  }
+  //################################################################################
+
+
+//################################################################################
+function sendLowRevenueWarning()
+  {
+
+    console.log('Send Low Revenue Warning');
+
+    
+    //Grab the Service key of use Tim's default one!
+    var serviceKey = getParameterByName('service_key');
+    if (!serviceKey) serviceKey = "999845c2635841589098d7fe425b0d0d";
+
+    var eventObject = ' { ' +
+    '   "payload": {     ' +
+    '     "summary": "Low Revenue detected compared to normal",   ' +
+    '     "source": "Prometheus",   ' +
+    '     "severity": "warning",   ' +
+    '     "location" : "prod",   ' +
+    '     "component": "Prometheus",   ' +
+    '     "group": "Prometheus,Production,eCommerce,Checkout-Tier",   ' +
+    '     "class": "Prometheus" },   ' +
+    '   	"routing_key": "' + serviceKey + '",   ' +
+    '   	"dedup_key": "Prometheusdedupkey",   ' +
+    '    	"event_action": "trigger",   ' +
+    '   	"client": "View in Prometheus",   ' +
+    '   	"client_url": "www.Prometheus.com",   ' +
+    '   	"images": [   ' +
+    '   	    {   ' +
+    '   	      "src": "https://logz.io/wp-content/uploads/2017/03/memory-graph.png",   ' +
+    '   	      "href": "https://logz.io/wp-content/uploads/2017/03/memory-graph.png",   ' +
+    '   	      "alt": "This is a sample link"  ' +
+    '   	  }  ' +
+    '   	]  ' +
+    '   }'
+
+
+    console.log(eventObject);
+
+    $.ajax({
+      method: "POST",
+      url: "https://events.pagerduty.com/v2/enqueue",
+      data: eventObject
+    })
+      .done(function( msg ) {
+        //alert( "Data Saved: " + msg );
+    });
+
+    return;
+  }
+  //################################################################################
+
+
+
+
+
   </script>
 
 
 
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-
-  
-
-    <script  src="js/index.js"></script>
-
-
-
+<script  src="js/index.js"></script>
 </body>
-
 </html>
